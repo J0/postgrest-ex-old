@@ -48,12 +48,12 @@ Client.init("api") |> Client.from("todos") |> RequestBuilder.select(["id", "name
 
 ### Update
 ```
-Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("name", "Singapore") |> RequestBuilder.update(%{"capital": "Sentosa"}) |> Client.call()
+Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("id", "1") |> RequestBuilder.update(%{"id": "5"}) |> Client.call()
 ```
 
 ### Delete
 ```
-Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("name", "Singapore") |> Client.delete() |> Client.call()
+Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("name", "Singapore") |> RequestBuilder.delete(%{"id": 1}) |> Client.call()
 ```
 
 

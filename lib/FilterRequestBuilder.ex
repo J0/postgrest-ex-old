@@ -9,11 +9,17 @@ defmodule FilterRequestBuilder do
 
     key = sanitize_params(column)
     val = "#{operator}.#{criteria}"
-    # If the key is in the list of params
+
+    req =
+      if Map.has_key?(req.params, key),
+        do: Map.update(req.params, key, fn params -> params ++ [val] end),
+        else: Kernel.put_in(req, [:params, key], val)
+
+    Map.merge(req, %{method: "POST"})
   end
 
-  def not(req) do
-      Map.merge(req, %{negate_next: True})
+  def not req do
+    Map.merge(req, %{negate_next: True})
   end
 
   def eq(req, column, value) do

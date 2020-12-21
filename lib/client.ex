@@ -25,6 +25,8 @@ defmodule Client do
       schema: schema,
       method: "GET",
       negate_next: False,
+      body: %{},
+      params: %{}
     }
   end
 
@@ -74,15 +76,14 @@ defmodule Client do
     url = req.path
     headers = req.headers
     body = Poison.encode!(Map.get(req, :body, %{}))
+    params = Map.get(req, :params, %{})
 
     case req.method do
-      "POST" -> HTTPoison.post!(url, body, headers)
+      "POST" -> HTTPoison.post!(url, body, headers, params: params)
       "GET" -> HTTPoison.get!(url, headers)
-      "PATCH" -> HTTPoison.patch!(url, %{}, headers)
-      "DELETE" -> HTTPoison.delete!(url)
+      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params)
+      "DELETE" -> HTTPoison.delete!(url, params: params)
       _ -> IO.puts("Method not found!")
     end
-
-    :ok
   end
 end
