@@ -24,9 +24,18 @@ defmodule Postgrestex do
   @spec auth(map(), String.t(), String.t(), String.t()) :: String.t()
   def auth(req, token, username \\ nil, password \\ "") do
     # authenticate using the hackney client
-    hackney = [basic_auth: {username, password}]
-    # add the auth bearer token
-    ""
+    if username != nil do
+      Map.merge(
+        req,
+        %{options: [basic_auth: {username, password}]}
+      )
+    else
+      Map.put(
+        req,
+        :headers,
+        Map.merge(req.headers, %{Authorization: "Bearer #{token}"})
+      )
+    end
   end
 
   @doc """
@@ -68,12 +77,13 @@ defmodule Postgrestex do
     headers = req.headers
     body = Poison.encode!(Map.get(req, :body, %{}))
     params = Map.get(req, :params, %{})
+    options = Map.get(req, :options, [])
 
     case req.method do
-      "POST" -> HTTPoison.post!(url, body, headers, params: params)
-      "GET" -> HTTPoison.get!(url, headers)
-      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params)
-      "DELETE" -> HTTPoison.delete!(url, params: params)
+      "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
+      "GET" -> HTTPoison.get!(url, headers, options: options)
+      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params, options: options)
+      "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
       _ -> IO.puts("Method not found!")
     end
   end
@@ -108,23 +118,24 @@ defmodule Postgrestex do
     desc = if desc, do: ".desc", else: ""
     nullsfirst = if nullsfirst, do: ".nullsfirst", else: ""
     headers = Map.merge(req.headers, %{order: "#{column} #{desc} #{nullsfirst}"})
+    req |> Map.merge(headers)
   end
 
   def limit(req, size, start) do
-    headers =
-      Map.merge(req.headers, %{Range: "#{start}-#{start + size - 1}", "Range-Unit": "items"})
+    Map.merge(req.headers, %{Range: "#{start}-#{start + size - 1}", "Range-Unit": "items"})
+    |> Map.merge(req)
   end
 
-  def range(req, start, _end) do
+  def range(req, start, end_) do
     updated_headers =
-      Map.merge(req.headers, %{Range: "#{start}-#{_end - 1}", "Range-Unit": "items"})
+      Map.merge(req.headers, %{Range: "#{start}-#{end_ - 1}", "Range-Unit": "items"})
 
     updated_headers |> Map.merge(req)
   end
 
   def single(req) do
     # Modify this to use a session header
-    headers = Map.merge(req.headers, %{Accept: "application/vnd.pgrst.object+json"})
+    Map.merge(req.headers, %{Accept: "application/vnd.pgrst.object+json"})
   end
 
   def sanitize_params(str) do
@@ -137,13 +148,13 @@ defmodule Postgrestex do
   end
 
   def filter(req, column, operator, criteria) do
-    if req.negate_next do
-      Map.update!(req, :negate_next, fn negate_next -> !negate_next end)
-      operator = "not.#{operator}"
-    end
+    {req, operator} =
+      if req.negate_next do
+        {Map.update!(req, :negate_next, fn negate_next -> !negate_next end), "not.#{operator}"}
+      end
 
-    key = sanitize_params(column)
     val = "#{operator}.#{criteria}"
+    key = sanitize_params(column)
 
     req =
       if Map.has_key?(req.params, key),
@@ -218,13 +229,12 @@ defmodule Postgrestex do
   end
 
   def cd(req, column, values) do
-    values = Enum.map(fn param -> sanitize_params(param) end, values)
-    values = Enum.join(values, ",")
+    values = Enum.map(fn param -> sanitize_params(param) end, values) |> Enum.join(",")
+    filter(req, column, "cd", "{#{values}}")
   end
 
   def ov(req, column, values) do
-    values = Enum.map(fn param -> sanitize_params(param) end, values)
-    values = Enum.join(values, ",")
+    values = Enum.map(fn param -> sanitize_params(param) end, values) |> Enum.join(",")
     filter(req, column, "ov", "{#{values}}")
   end
 

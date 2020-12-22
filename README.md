@@ -1,6 +1,6 @@
 # Postgrestex
 
-Elixir Client library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
+Elixir Postgrestex library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
 
 ## Installation
 
@@ -33,27 +33,27 @@ TODOS:
 
 ## Initialize and read from a table
 ```
- Client.init("api") |> Client.from("todos") |> Client.call()
+ Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.call()
 ```
 
 ### Create
 ```
-Client.init("api") |> Client.from("todos") |> RequestBuilder.insert(%{"name": "Singapore", "capital": "Singapore" }, False) |> Client.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.insert(%{"name": "Singapore", "capital": "Singapore" }, False) |> Postgrestex.call()
 ```
 
 ### Read
 ```
-Client.init("api") |> Client.from("todos") |> RequestBuilder.select(["id", "name"]) |>Client.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> RequestBuilder.select(["id", "name"]) |>Postgrestex.call()
 ```
 
 ### Update
 ```
-Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("id", "1") |> RequestBuilder.update(%{"id": "5"}) |> Client.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("id", "1") |> RequestBuilder.update(%{"id": "5"}) |> Postgrestex.call()
 ```
 
 ### Delete
 ```
-Client.init("api") |> Client.from("todos") |> FilterRequestBuilder.eq("name", "Singapore") |> RequestBuilder.delete(%{"id": 1}) |> Client.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("name", "Singapore") |> RequestBuilder.delete(%{"id": 1}) |> Postgrestex.call()
 ```
 
 
