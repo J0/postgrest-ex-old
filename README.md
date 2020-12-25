@@ -24,37 +24,47 @@ be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
 
 
 TODOS:
-- [x] Support Select Requests
 - [ ] Write Tests
-- [ ] Support Auth
 - [ ] Document all functions
 - [ ] Convert to use async library
 
 ## Initialize and read from a table
+
+First, `import Postgrestex`
+
+Then do:
 ```
- Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.call()
+ init("api") |> from("todos") |> call()
 ```
 
 ### Create
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.insert(%{"name": "Singapore", "capital": "Singapore" }, False) |> Postgrestex.call()
+init("api") |> from("todos") |> insert(%{"name": "Singapore", "capital": "Singapore" }, False) |> call()
 ```
 
 ### Read
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.select(["id", "name"]) |>Postgrestex.call()
+init("api") |> from("todos") |> select(["id", "name"]) |>call()
 ```
 
 ### Update
 Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("id", "1") |> Postgrestex.update(%{"id": "5"}) |> Postgrestex.auth("<insert your token here>") Postgrestex.call()
+init("api") |> from("todos") |> eq("id", "1") |> update(%{"id": "5"}) |> auth("<insert your token here>") call()
 ```
 
 ### Delete
 Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("name", "Singapore") |> Postgrestex.delete(%{"id": 1})|> Postgrestex.auth("<insert your token here>") |> Postgrestex.call()
+init("api") |> from("todos") |> eq("name", "Singapore") |> delete(%{"id": 1})|> auth("<insert your token here>") |> call()
 ```
+
+## Testing
+
+Note: This is WIP
+
+To run the tests, first install postgrest and do `postgrest tutorial.conf`
+
+Then run `mix test`
 
 
