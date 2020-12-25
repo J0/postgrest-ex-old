@@ -50,7 +50,7 @@ init("api") |> from("todos") |> select(["id", "name"]) |>call()
 ### Update
 Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-init("api") |> from("todos") |> eq("id", "1") |> update(%{"id": "5"}) |> auth("<insert your token here>") call()
+init("api") |> from("todos") |> eq("id", "1") |> update(%{"id": "5"}) |> auth("<insert your token here>")|> call()
 ```
 
 ### Delete
