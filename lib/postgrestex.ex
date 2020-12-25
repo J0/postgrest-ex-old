@@ -27,7 +27,7 @@ defmodule Postgrestex do
     if username != nil do
       Map.merge(
         req,
-        %{options: [basic_auth: {username, password}]}
+        %{options: [hackney: [basic_auth: {username, password}]]}
       )
     else
       Map.put(

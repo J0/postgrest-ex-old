@@ -24,7 +24,6 @@ be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
 
 
 TODOS:
-- [ ] Support Filter Request
 - [x] Support Select Requests
 - [ ] Write Tests
 - [ ] Support Auth
@@ -43,17 +42,19 @@ Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.insert(%{"na
 
 ### Read
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> RequestBuilder.select(["id", "name"]) |>Postgrestex.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.select(["id", "name"]) |>Postgrestex.call()
 ```
 
 ### Update
+Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("id", "1") |> RequestBuilder.update(%{"id": "5"}) |> Postgrestex.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("id", "1") |> Postgrestex.update(%{"id": "5"}) |> Postgrestex.auth("<insert your token here>") Postgrestex.call()
 ```
 
 ### Delete
+Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("name", "Singapore") |> RequestBuilder.delete(%{"id": 1}) |> Postgrestex.call()
+Postgrestex.init("api") |> Postgrestex.from("todos") |> Postgrestex.eq("name", "Singapore") |> Postgrestex.delete(%{"id": 1})|> Postgrestex.auth("<insert your token here>") |> Postgrestex.call()
 ```
 
 
