@@ -2,6 +2,9 @@ defmodule Postgrestex do
   @moduledoc """
   Documentation for `Postgrestex`.
   """
+  defmodule NoMethodException do
+    defexception message: "No method found!"
+  end
 
   @spec init(map(), String.t()) :: map()
   def init(schema, path \\ "http://localhost:3000") do
@@ -15,7 +18,7 @@ defmodule Postgrestex do
       path: path,
       schema: schema,
       method: "GET",
-      negate_next: False,
+      negate_next: false,
       body: %{},
       params: %{}
     }
@@ -58,11 +61,11 @@ defmodule Postgrestex do
 
   @spec rpc(map(), String.t(), map()) :: map()
   def rpc(req, func, params) do
-    # Append to path and set req type to post 
+    # Append to path and set req type to post
     Map.merge(req, %{path: "#{req.path}/#{func}", body: params, method: "POST"})
   end
 
-  @spec call(map()) :: :ok | :error
+  @spec call(map()) :: HTTPoison.Response.t() | :error
   def call(req) do
     url = req.path
     headers = req.headers
@@ -75,7 +78,24 @@ defmodule Postgrestex do
       "GET" -> HTTPoison.get!(url, headers, options: options)
       "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params, options: options)
       "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
-      _ -> IO.puts("Method not found!")
+      _ -> :error
+    end
+  end
+
+  @spec call!(map()) :: HTTPoison.Response.t() | NoMethodException
+  def call!(req) do
+    url = req.path
+    headers = req.headers
+    body = Poison.encode!(Map.get(req, :body, %{}))
+    params = Map.get(req, :params, %{})
+    options = Map.get(req, :options, [])
+
+    case req.method do
+      "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
+      "GET" -> HTTPoison.get!(url, headers, options: options)
+      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params, options: options)
+      "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
+      _ -> raise NoMethodException
     end
   end
 
@@ -134,7 +154,8 @@ defmodule Postgrestex do
   @spec single(map()) :: map()
   def single(req) do
     # Modify this to use a session header
-    Map.merge(req.headers, %{Accept: "application/vnd.pgrst.object+json"})
+    updated_headers = Map.merge(req.headers, %{Accept: "application/vnd.pgrst.object+json"})
+    updated_headers |> Map.merge(req)
   end
 
   @spec sanitize_params(String.t()) :: String.t()
@@ -168,7 +189,7 @@ defmodule Postgrestex do
 
   @spec not map() :: map()
   def not req do
-    Map.merge(req, %{negate_next: True})
+    Map.merge(req, %{negate_next: true})
   end
 
   @spec eq(map(), String.t(), String.t()) :: map()
@@ -274,5 +295,10 @@ defmodule Postgrestex do
   @spec adj(map(), String.t(), integer()) :: map()
   def adj(req, column, range) do
     filter(req, column, "adj", "(#{Enum.at(range, 0)},#{Enum.at(range, 1)})")
+  end
+
+  @spec update_headers(map(), map()) :: map()
+  def update_headers(req, updates) do
+    Kernel.update_in(req.headers, &Map.merge(&1, updates))
   end
 end
