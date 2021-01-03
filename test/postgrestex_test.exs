@@ -1,31 +1,40 @@
 defmodule PostgrestexTest do
   use ExUnit.Case
   doctest Postgrestex
+  import Postgrestex
 
-  test "init returns struct" do
-    assert Client.init("todos") == %{
-      headers: %{
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Accept-Profile": "todos",
-        "Content-Profile": "todos",
-      },
-      path: "http://localhost:3000",
-      schema: "todos",
-      method: "GET",
-    }
+
+
+  # Test the four different types of applications
+  # POST, PUT, GET, PATCH
+  test "init works" do
+    assert init("todos").schema == "todos"
   end
-  test "using schema changes the schema" do
-    assert Client.init("api") |> Client.from("todos")  == %{
-  headers: %{
-    Accept: "application/json",
-    "Accept-Profile": "api",
-    "Content-Profile": "api",
-    "Content-Type": "application/json"
-  },
-  method: "GET",
-  path: "http://localhost:3000/todos",
-  schema: "api"
-}
+
+  test "create query" do
+    # assert (init("api") |> from("todos") ).schema == "api"
+    raise "Not Implemented"
   end
+
+  # Read query from
+  test "read query" do
+    raise "Not Implemented"
+  end
+
+  test "update query" do
+    raise "Not Implemented"
+  end
+
+  test "delete query" do
+    raise "Not Implemented"
+  end
+
+  # Integration test for limit query and range query together with a not clause
+
+  # test update headerd
+  test "update headers inserts a header" do
+    assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header) == "header"
+  end
+
+
 end
