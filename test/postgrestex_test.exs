@@ -3,8 +3,6 @@ defmodule PostgrestexTest do
   doctest Postgrestex
   import Postgrestex
 
-
-
   # Test the four different types of applications
   # POST, PUT, GET, PATCH
   test "init works" do
@@ -30,6 +28,9 @@ defmodule PostgrestexTest do
   end
 
   # Integration test for limit query and range query together with a not clause
+  test "selectors work" do
+    raise "Not Implemented"
+  end
 
   # test update headerd
   test "update headers inserts a header" do

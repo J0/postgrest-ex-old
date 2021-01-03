@@ -69,7 +69,7 @@ defmodule Postgrestex do
   def call(req) do
     url = req.path
     headers = req.headers
-    body = Poison.encode!(Map.get(req, :body, %{}))
+    body = Jason.encode!(Map.get(req, :body, %{}))
     params = Map.get(req, :params, %{})
     options = Map.get(req, :options, [])
 
@@ -86,7 +86,7 @@ defmodule Postgrestex do
   def call!(req) do
     url = req.path
     headers = req.headers
-    body = Poison.encode!(Map.get(req, :body, %{}))
+    body = Jason.encode!(Map.get(req, :body, %{}))
     params = Map.get(req, :params, %{})
     options = Map.get(req, :options, [])
 
