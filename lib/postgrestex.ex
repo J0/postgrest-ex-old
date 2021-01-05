@@ -33,11 +33,7 @@ defmodule Postgrestex do
         %{options: [hackney: [basic_auth: {username, password}]]}
       )
     else
-      Map.put(
-        req,
-        :headers,
-        Map.merge(req.headers, %{Authorization: "Bearer #{token}"})
-      )
+      update_headers(req, %{Authorization: "Bearer #{token}"})
     end
   end
 
@@ -101,23 +97,19 @@ defmodule Postgrestex do
 
   @spec select(map(), list()) :: map()
   def select(req, columns) do
-    Map.put(
-      req,
-      :headers,
-      Map.merge(req.headers, %{select: Enum.join(columns, ","), method: "GET"})
-    )
+    update_headers(req, %{select: Enum.join(columns, ","), method: "GET"})
   end
 
   @spec insert(map(), list(), true | false) :: map()
   def insert(req, json, upsert \\ false) do
     prefer_option = if upsert, do: ",resolution=merge-duplicates", else: ""
-    headers = Map.merge(req.headers, %{Prefer: prefer_option, method: "POST"})
+    headers = update_headers(req, %{Prefer: prefer_option, method: "POST"})
     req |> Map.merge(headers) |> Map.merge(%{body: json})
   end
 
   @spec update(map(), map()) :: map()
   def update(req, json) do
-    updated_headers = Map.merge(req.headers, %{Prefer: "return=representation"})
+    updated_headers = update_headers(req, %{Prefer: "return=representation"})
 
     updated_headers
     |> Map.merge(%{method: "PATCH", body: json})
@@ -133,29 +125,23 @@ defmodule Postgrestex do
   def order(req, column, desc \\ false, nullsfirst \\ false) do
     desc = if desc, do: ".desc", else: ""
     nullsfirst = if nullsfirst, do: ".nullsfirst", else: ""
-    headers = Map.merge(req.headers, %{order: "#{column} #{desc} #{nullsfirst}"})
-    req |> Map.merge(headers)
+    update_headers(req, %{order: "#{column} #{desc} #{nullsfirst}"})
   end
 
   @spec limit(map(), integer(), integer()) :: map()
   def limit(req, size, start) do
-    Map.merge(req.headers, %{Range: "#{start}-#{start + size - 1}", "Range-Unit": "items"})
-    |> Map.merge(req)
+    update_headers(req, %{Range: "#{start}-#{start + size - 1}", "Range-Unit": "items"})
   end
 
   @spec range(map(), integer(), integer()) :: map()
   def range(req, start, end_) do
-    updated_headers =
-      Map.merge(req.headers, %{Range: "#{start}-#{end_ - 1}", "Range-Unit": "items"})
-
-    updated_headers |> Map.merge(req)
+    update_headers(req, %{Range: "#{start}-#{end_ - 1}", "Range-Unit": "items"})
   end
 
   @spec single(map()) :: map()
   def single(req) do
     # Modify this to use a session header
-    updated_headers = Map.merge(req.headers, %{Accept: "application/vnd.pgrst.object+json"})
-    updated_headers |> Map.merge(req)
+    update_headers(req, %{Accept: "application/vnd.pgrst.object+json"})
   end
 
   @spec sanitize_params(String.t()) :: String.t()

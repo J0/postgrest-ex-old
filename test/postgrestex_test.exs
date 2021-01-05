@@ -10,7 +10,7 @@ defmodule PostgrestexTest do
   end
 
   test "create query" do
-    # assert (init("api") |> from("todos") ).schema == "api"
+    assert (init("api") |> from("todos") ).schema == "api"
     raise "Not Implemented"
   end
 
