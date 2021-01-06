@@ -18,6 +18,10 @@ defmodule PostgrestexTest do
     raise "Not Implemented"
   end
 
+  test "multivalued params work" do
+    assert((init("api") |> lte("x", "a") |> gte("x", "b")).params == %{"x" => ["lte.a", "gte.b"]})
+  end
+
   test "update query" do
     raise "Not Implemented"
   end
@@ -33,6 +37,6 @@ defmodule PostgrestexTest do
 
   # test update headerd
   test "update headers inserts a header" do
-    assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header) == "header"
+    assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header == "header")
   end
 end

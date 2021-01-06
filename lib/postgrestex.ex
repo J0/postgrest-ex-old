@@ -160,15 +160,20 @@ defmodule Postgrestex do
     {req, operator} =
       if req.negate_next do
         {Map.update!(req, :negate_next, fn negate_next -> !negate_next end), "not.#{operator}"}
+      else
+        {req, operator}
       end
 
     val = "#{operator}.#{criteria}"
     key = sanitize_params(column)
 
     req =
-      if Map.has_key?(req.params, key),
-        do: Map.update!(req.params, key, fn params -> params ++ [val] end),
-        else: Kernel.put_in(req, [:params, key], val)
+      if Map.has_key?(req.params, key) do
+        params = Map.get(req.params, key)
+        Kernel.put_in(req[:params][key], params ++ [val])
+      else
+        Kernel.put_in(req, [:params, key], [val])
+      end
 
     Map.merge(req, %{method: "POST"})
   end
@@ -201,6 +206,11 @@ defmodule Postgrestex do
   @spec lte(map(), String.t(), String.t()) :: map()
   def lte(req, column, value) do
     filter(req, column, "lte", sanitize_params(value))
+  end
+
+  @spec gte(map(), String.t(), String.t()) :: map()
+  def gte(req, column, value) do
+    filter(req, column, "gte", sanitize_params(value))
   end
 
   @spec is_(map(), String.t(), String.t()) :: map()
