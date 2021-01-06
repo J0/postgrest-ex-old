@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-elixir@v1
         with:
           otp-version: '22.2'
-          elixir-version: '1.9.4'
+          elixir-version: '1.11'
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
