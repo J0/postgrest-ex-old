@@ -10,8 +10,7 @@ defmodule PostgrestexTest do
   end
 
   test "create query" do
-    assert (init("api") |> from("todos") ).schema == "api"
-    raise "Not Implemented"
+    assert (init("api") |> from("todos")).schema == "api"
   end
 
   # Read query from
@@ -36,6 +35,4 @@ defmodule PostgrestexTest do
   test "update headers inserts a header" do
     assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header) == "header"
   end
-
-
 end
