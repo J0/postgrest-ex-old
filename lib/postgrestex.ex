@@ -44,7 +44,8 @@ defmodule Postgrestex do
   """
   @spec schema(map(), String.t()) :: map()
   def schema(req, schema) do
-    Map.merge(req, %{schema: schema, method: "GET"})
+    update_headers(req, %{"Accept-Profile": schema, "Content-Profile": schema})
+    |> Map.merge(%{schema: schema, method: "GET"})
   end
 
   @doc """
@@ -72,7 +73,7 @@ defmodule Postgrestex do
     case req.method do
       "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
       "GET" -> HTTPoison.get!(url, headers, options: options)
-      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params, options: options)
+      "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
       "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
       _ -> :error
     end
@@ -89,7 +90,7 @@ defmodule Postgrestex do
     case req.method do
       "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
       "GET" -> HTTPoison.get!(url, headers, options: options)
-      "PATCH" -> HTTPoison.patch!(url, %{}, headers, params: params, options: options)
+      "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
       "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
       _ -> raise NoMethodException
     end
@@ -109,11 +110,8 @@ defmodule Postgrestex do
 
   @spec update(map(), map()) :: map()
   def update(req, json) do
-    updated_headers = update_headers(req, %{Prefer: "return=representation"})
-
-    updated_headers
+    update_headers(req, %{Prefer: "return=representation"})
     |> Map.merge(%{method: "PATCH", body: json})
-    |> Map.merge(req)
   end
 
   @spec delete(map(), map()) :: map()
