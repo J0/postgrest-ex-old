@@ -103,8 +103,8 @@ defmodule Postgrestex do
   @spec insert(map(), list(), true | false) :: map()
   def insert(req, json, upsert \\ false) do
     prefer_option = if upsert, do: ",resolution=merge-duplicates", else: ""
-    headers = update_headers(req, %{Prefer: prefer_option, method: "POST"})
-    req |> Map.merge(headers) |> Map.merge(%{body: json})
+    headers = update_headers(req, %{Prefer: prefer_option})
+    req |> Map.merge(headers) |> Map.merge(%{body: json, method: "POST"})
   end
 
   @spec update(map(), map()) :: map()

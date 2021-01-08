@@ -1,4 +1,8 @@
+
 # Postgrestex
+
+**Status: WIP(Do Not Use!)**
+
 
 Elixir Postgrestex library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
 
@@ -32,10 +36,7 @@ TODOS:
 
 First, `import Postgrestex`
 
-Then do:
-```
- init("api") |> from("todos") |> call()
-```
+Then do any one of the following options:
 
 ### Create
 ```
@@ -44,7 +45,7 @@ init("api") |> from("todos") |> insert(%{"name": "Singapore", "capital": "Singap
 
 ### Read
 ```
-init("api") |> from("todos") |> select(["id", "name"]) |>call()
+init("api") |> from("todos") |> select(["id", "name"]) |> call()
 ```
 
 ### Update
@@ -56,15 +57,11 @@ init("api") |> from("todos") |> eq("id", "1") |> update(%{"id": "5"}) |> auth("<
 ### Delete
 Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-init("api") |> from("todos") |> eq("name", "Singapore") |> delete(%{"id": 1})|> auth("<insert your token here>") |> call()
+init("api") |> from("todos") |> eq("name", "Singapore") |> delete(%{"id": 1}) |> auth("<insert your token here>") |> call()
 ```
 
 ## Testing
 
-Note: This is WIP
-
-To run the tests, first install postgrest and do `postgrest tutorial.conf`
-
-Then run `mix test`
+Run `mix test`
 
 
