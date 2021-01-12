@@ -1,7 +1,7 @@
 
 # Postgrestex
 
-**Status: WIP(Do Not Use!)**
+**Status: POC**
 
 
 Elixir Postgrestex library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
@@ -28,9 +28,9 @@ be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
 
 
 TODOS:
-- [ ] Write Tests
 - [ ] Document all functions
 - [ ] Convert to use async library
+
 
 ## Initialize and read from a table
 
@@ -49,15 +49,19 @@ init("api") |> from("todos") |> select(["id", "name"]) |> call()
 ```
 
 ### Update
-Note: Bear in mind to update the <insert your token field> to use your own jwt token.
 ```
-init("api") |> from("todos") |> eq("id", "1") |> update(%{"id": "5"}) |> auth("<insert your token here>")|> call()
+init("public") |> from("users") |> eq("username", "supabot") |> update(%{"status": "OFFLINE"}) |> call()
 ```
 
 ### Delete
-Note: Bear in mind to update the <insert your token field> to use your own jwt token.
+Example usage:
+
 ```
-init("api") |> from("todos") |> eq("name", "Singapore") |> delete(%{"id": 1}) |> auth("<insert your token here>") |> call()
+init("public")
+  |> from("users")
+  |> eq("username", "nevergonna")
+  |> delete(%{status: "ONLINE"})
+  |> call!()
 ```
 
 ## Testing

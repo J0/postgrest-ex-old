@@ -74,8 +74,7 @@ defmodule Postgrestex do
       "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
       "GET" -> HTTPoison.get!(url, headers, options: options)
       "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
-      "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
-      _ -> :error
+      "DELETE" -> HTTPoison.delete!(url, [], params: params, options: options)
     end
   end
 
@@ -88,11 +87,20 @@ defmodule Postgrestex do
     options = Map.get(req, :options, [])
 
     case req.method do
-      "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
-      "GET" -> HTTPoison.get!(url, headers, options: options)
-      "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
-      "DELETE" -> HTTPoison.delete!(url, params: params, options: options)
-      _ -> raise NoMethodException
+      "POST" ->
+        HTTPoison.post!(url, body, headers, params: params, options: options)
+
+      "GET" ->
+        HTTPoison.get!(url, headers, options: options)
+
+      "PATCH" ->
+        HTTPoison.patch!(url, body, headers, params: params, options: options)
+
+      "DELETE" ->
+        HTTPoison.delete!(url, [], params: params, options: options)
+
+      _ ->
+        raise NoMethodException
     end
   end
 
@@ -167,10 +175,11 @@ defmodule Postgrestex do
 
     req =
       if Map.has_key?(req.params, key) do
-        params = Map.get(req.params, key)
-        Kernel.put_in(req[:params][key], params ++ [val])
+        # TODO: Handle variables with multiple assignments
+        # params = Map.get(req.params, key)
+        Kernel.put_in(req[:params][key], val)
       else
-        Kernel.put_in(req, [:params, key], [val])
+        Kernel.put_in(req, [:params, key], val)
       end
 
     Map.merge(req, %{method: "POST"})

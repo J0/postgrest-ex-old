@@ -35,27 +35,22 @@ defmodule PostgrestexTest do
 
   # Read query from
   test "read query" do
-    # @TODO: Create test
-    # IO.inspect(init("api") |> from("todos") |> select(["id", "name"]))
+    resp = init("public") |> from("messages") |> select(["id", "username"]) |> call()
+    assert(resp.status_code == 200)
   end
 
   test "multivalued params work" do
-    # @TODO: Create test
-    # init("api") |> lte("x", "a") |> gte("x", "b")
+    # Update does not work
+    # init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
   end
 
   test "update query" do
-    # @TODO: Create test
-    # init("public") |> from("users") |> eq("id", "1") |> update(%{id: "5"})
+    # Message with id 1 should be updated to 5
+    init("public") |> from("messages") |> eq("id", "1") |> update(%{id: "5"}) |> call()
   end
 
   test "delete query" do
-    # @TODO: Create test
-    # init("public")
-    # |> from("users")
-    # |> eq("name", "Singapore")
-    # |> delete(%{id: 1})
-    # |> auth("<insert your token here>")
+    init("public") |> from("users") |> eq("username", "awailas") |> delete(%{status: "ONLINE"})
   end
 
   # Integration test for limit query and range query together with a not clause
@@ -65,16 +60,6 @@ defmodule PostgrestexTest do
 
   test "update headers inserts a header" do
     assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header == "header")
-  end
-
-  describe "Authentication tests" do
-    test "test auth token" do
-      # @TODO: Add test here
-    end
-
-    test "test auth basic" do
-      # @TODO: Add test here
-    end
   end
 
   describe "Test schema change" do
@@ -94,6 +79,11 @@ defmodule PostgrestexTest do
   describe "Test insert variants" do
     test "Insert insert" do
       # @TODO: Add test here
+      init("public")
+      |> from("users")
+      |> eq("username", "supabot")
+      |> insert(%{random: "field"})
+      |> call()
     end
 
     test "Test Upsert" do
@@ -101,10 +91,37 @@ defmodule PostgrestexTest do
     end
 
     test "Test Update" do
-      # @TODO: Add test here
+      # This should successfully update
+      req =
+        init("public")
+        |> from("users")
+        |> eq("username", "supabot")
+        |> update(%{status: "OFFLINE"})
+
+      assert(req.params == %{"username" => "eq.supabot"})
+      assert(req.method == "PATCH")
+      assert(req.headers[:Prefer] == "return=representation")
     end
 
     test "Test Delete" do
+      # The object should be deleted
+      req =
+        init("public")
+        |> from("users")
+        |> eq("username", "nevergonna")
+        |> delete(%{status: "ONLINE"})
+
+      assert(req.method == "DELETE")
+      assert(req.body == %{status: "ONLINE"})
+    end
+  end
+
+  describe "Authentication tests" do
+    test "test auth token" do
+      # @TODO: Add test here
+    end
+
+    test "test auth basic" do
       # @TODO: Add test here
     end
   end
