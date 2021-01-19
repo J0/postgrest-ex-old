@@ -33,14 +33,12 @@ defmodule PostgrestexTest do
     )
   end
 
-  # Read query from
   test "read query" do
     resp = init("public") |> from("messages") |> select(["id", "username"]) |> call()
     assert(resp.status_code == 200)
   end
 
   test "multivalued params work" do
-    # Update does not work
     # init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
   end
 
@@ -90,21 +88,11 @@ defmodule PostgrestexTest do
   end
 
   describe "Test insert variants" do
-    test "Insert insert" do
-      # @TODO: Add test here
-      init("public")
-      |> from("users")
-      |> eq("username", "supabot")
-      |> insert(%{random: "field"})
-      |> call()
-    end
-
     test "Test Upsert" do
       # @TODO: Add test here
     end
 
     test "Test Update" do
-      # This should successfully update
       req =
         init("public")
         |> from("users")
@@ -117,7 +105,6 @@ defmodule PostgrestexTest do
     end
 
     test "Test Delete" do
-      # The object should be deleted
       req =
         init("public")
         |> from("users")

@@ -85,12 +85,15 @@ defmodule Postgrestex do
     params = Map.get(req, :params, %{})
     options = Map.get(req, :options, [])
 
-    case req.method do
-      "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
-      "GET" -> HTTPoison.get!(url, headers, options: options)
-      "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
-      "DELETE" -> HTTPoison.delete!(url, [], params: params, options: options)
-    end
+    Task.async(fn ->
+      case req.method do
+        "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
+        "GET" -> HTTPoison.get!(url, headers, options: options)
+        "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
+        "DELETE" -> HTTPoison.delete!(url, [], params: params, options: options)
+      end
+    end)
+    |> Task.await()
   end
 
   @doc """
@@ -105,22 +108,25 @@ defmodule Postgrestex do
     params = Map.get(req, :params, %{})
     options = Map.get(req, :options, [])
 
-    case req.method do
-      "POST" ->
-        HTTPoison.post!(url, body, headers, params: params, options: options)
+    Task.async(fn ->
+      case req.method do
+        "POST" ->
+          HTTPoison.post!(url, body, headers, params: params, options: options)
 
-      "GET" ->
-        HTTPoison.get!(url, headers, options: options)
+        "GET" ->
+          HTTPoison.get!(url, headers, options: options)
 
-      "PATCH" ->
-        HTTPoison.patch!(url, body, headers, params: params, options: options)
+        "PATCH" ->
+          HTTPoison.patch!(url, body, headers, params: params, options: options)
 
-      "DELETE" ->
-        HTTPoison.delete!(url, [], params: params, options: options)
+        "DELETE" ->
+          HTTPoison.delete!(url, [], params: params, options: options)
 
-      _ ->
-        raise NoMethodException
-    end
+        _ ->
+          raise NoMethodException
+      end
+    end)
+    |> Task.await()
   end
 
   @spec select(map(), list()) :: map()
