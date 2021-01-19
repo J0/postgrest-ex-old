@@ -1,11 +1,18 @@
 defmodule Postgrestex do
   @moduledoc """
-  Documentation for `Postgrestex`.
+  `Postgrestex` is a client library which provides elixir bindings to interact with PostgREST. PostgREST in turn
+  is a standalone web server that turns your PostgreSQL database directly into a RESTful API.
   """
+  @moduledoc since: "0.1.0"
+
   defmodule NoMethodException do
     defexception message: "No method found!"
   end
 
+  @doc """
+  Creates an initial request in the form of a map that the user can work with.
+  """
+  @doc since: "0.1.0"
   @spec init(map(), String.t()) :: map()
   def init(schema, path \\ "http://localhost:3000") do
     %{
@@ -39,8 +46,6 @@ defmodule Postgrestex do
 
   @doc """
   Switch to another schema.
-
-  ## Examples
   """
   @spec schema(map(), String.t()) :: map()
   def schema(req, schema) do
@@ -49,7 +54,7 @@ defmodule Postgrestex do
   end
 
   @doc """
-  Perform a table operation
+  Select table to obtain data from/perform operations on
   """
   @spec from(map(), String.t()) :: map()
   def from(req, table) do
@@ -62,6 +67,10 @@ defmodule Postgrestex do
     Map.merge(req, %{path: "#{req.path}/#{func}", body: params, method: "POST"})
   end
 
+  @doc """
+  Take in and execute a request. Doesn't return an exception if an error is thrown.
+  """
+  @doc since: "0.1.0"
   @spec call(map()) :: HTTPoison.Response.t() | :error
   def call(req) do
     url = req.path
@@ -109,6 +118,10 @@ defmodule Postgrestex do
     update_headers(req, %{select: Enum.join(columns, ","), method: "GET"})
   end
 
+  @doc """
+  Insert a row into currently selected table. Does an insert and update if upsert is set to True
+  """
+  @doc since: "0.1.0"
   @spec insert(map(), list(), true | false) :: map()
   def insert(req, json, upsert \\ false) do
     prefer_option = if upsert, do: ",resolution=merge-duplicates", else: ""
@@ -116,12 +129,19 @@ defmodule Postgrestex do
     req |> Map.merge(headers) |> Map.merge(%{body: json, method: "POST"})
   end
 
+  @doc """
+  Update an existing value in the currently selected table.
+  """
+  @doc since: "0.1.0"
   @spec update(map(), map()) :: map()
   def update(req, json) do
     update_headers(req, %{Prefer: "return=representation"})
     |> Map.merge(%{method: "PATCH", body: json})
   end
 
+  @doc """
+  Delete an existing value in the currently selected table.
+  """
   @spec delete(map(), map()) :: map()
   def delete(req, json) do
     req |> Map.merge(%{method: "DELETE", body: json})
