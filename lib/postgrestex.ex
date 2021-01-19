@@ -31,6 +31,9 @@ defmodule Postgrestex do
     }
   end
 
+  @doc """
+  Authenticate the client with either the bearer token or basic authentication.
+  """
   @spec auth(map(), String.t(), String.t(), String.t()) :: map()
   def auth(req, token, username \\ "", password \\ "") do
     # authenticate using the hackney client
@@ -61,9 +64,12 @@ defmodule Postgrestex do
     Map.merge(req, %{path: "#{req.path}/#{table}"})
   end
 
+  @doc """
+  Execute a Stored Procedure Call
+  """
+  @doc since: "0.1.0"
   @spec rpc(map(), String.t(), map()) :: map()
   def rpc(req, func, params) do
-    # Append to path and set req type to post
     Map.merge(req, %{path: "#{req.path}/#{func}", body: params, method: "POST"})
   end
 
@@ -87,6 +93,10 @@ defmodule Postgrestex do
     end
   end
 
+  @doc """
+  Take in and execute a request. Raises an exception if an error occurs.
+  """
+  @doc since: "0.1.0"
   @spec call!(map()) :: HTTPoison.Response.t() | NoMethodException
   def call!(req) do
     url = req.path
@@ -142,6 +152,7 @@ defmodule Postgrestex do
   @doc """
   Delete an existing value in the currently selected table.
   """
+  @doc since: "0.1.0"
   @spec delete(map(), map()) :: map()
   def delete(req, json) do
     req |> Map.merge(%{method: "DELETE", body: json})
@@ -170,6 +181,10 @@ defmodule Postgrestex do
     update_headers(req, %{Accept: "application/vnd.pgrst.object+json"})
   end
 
+  @doc """
+  Remove reserved characters from the parameter string.
+  """
+  @doc since: "0.1.0"
   @spec sanitize_params(String.t()) :: String.t()
   def sanitize_params(str) do
     reserved_chars = String.graphemes(",.:()")
@@ -181,6 +196,10 @@ defmodule Postgrestex do
     str |> String.replace("%", "*")
   end
 
+  @doc """
+  Either filter in or filter out based on Self.negate_next.
+  """
+  @doc since: "0.1.0"
   @spec filter(map(), String.t(), String.t(), String.t()) :: map()
   def filter(req, column, operator, criteria) do
     {req, operator} =
@@ -205,6 +224,10 @@ defmodule Postgrestex do
     Map.merge(req, %{method: "POST"})
   end
 
+  @doc """
+  Toggle between filtering in or filtering out.
+  """
+  @doc since: "0.1.0"
   @spec not map() :: map()
   def not req do
     Map.merge(req, %{negate_next: true})
