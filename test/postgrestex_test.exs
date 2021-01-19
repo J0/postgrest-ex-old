@@ -45,12 +45,25 @@ defmodule PostgrestexTest do
   end
 
   test "update query" do
-    # Message with id 1 should be updated to 5
-    init("public") |> from("messages") |> eq("id", "1") |> update(%{id: "5"}) |> call()
+    init("public")
+    |> from("messages")
+    |> eq("username", "supabot")
+    |> update(%{id: "6"})
+    |> call()
+
+    resp = init("public") |> from("messages") |> select(["id", "username"]) |> call()
+    assert(resp.body =~ "\"id\":5")
   end
 
   test "delete query" do
-    init("public") |> from("users") |> eq("username", "awailas") |> delete(%{status: "ONLINE"})
+    resp =
+      init("public")
+      |> from("users")
+      |> eq("username", "awailas")
+      |> delete(%{status: "ONLINE"})
+      |> call()
+
+    assert(resp.status_code == 204)
   end
 
   # Integration test for limit query and range query together with a not clause
