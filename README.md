@@ -14,7 +14,7 @@ by adding `postgrestex` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:postgrestex, "~> 0.1.0"}
+    {:postgrestex, "~> 0.1.1"}
   ]
 end
 ```
@@ -33,30 +33,36 @@ First, `import Postgrestex`
 Then do any one of the following options:
 
 ### Create
+Example usage:
+
 ```
-init("public")
-      |> from("users")
+init("public") \
+      |> from("users") \
       |> insert(
         %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
         false
-      )
-      |> call()
+      ) \
+      |> call() 
 ```
 
 ### Read
+Example usage:
+
 ```
-init("public") 
-    |> from("messages") 
-    |> select(["id", "username"]) 
+init("public") \
+    |> from("messages") \
+    |> select(["id", "username"]) \
     |> call()
 ```
 
 ### Update
+Example usage:
+
 ```
-init("public")
-    |> from("messages")
-    |> eq("username", "supabot")
-    |> update(%{id: "6"})
+  init("public") \
+    |> from("users") \
+    |> eq("username", "supabot") \
+    |> update(%{status: "OFFLINE"}) \
     |> call()
 ```
 
@@ -64,11 +70,11 @@ init("public")
 Example usage:
 
 ```
-init("public")
-  |> from("users")
-  |> eq("username", "nevergonna")
-  |> delete(%{status: "ONLINE"})
-  |> call!()
+init("public") \
+  |> from("users") \
+  |> eq("username", "nevergonna") \
+  |> delete(%{status: "ONLINE"}) \
+  |> call()
 ```
 
 ## Testing
