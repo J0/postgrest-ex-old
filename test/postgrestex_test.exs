@@ -45,13 +45,13 @@ defmodule PostgrestexTest do
 
   test "update query" do
     init("public")
-    |> from("messages")
-    |> eq("username", "supabot")
-    |> update(%{id: "6"})
+    |> from("users")
+    |> eq("username", "dragarcia")
+    |> update(%{username: "supabase"})
     |> call()
 
-    resp = init("public") |> from("messages") |> select(["id", "username"]) |> call()
-    assert(resp.body =~ "\"id\":5")
+    resp = init("public") |> from("users") |> select(["status", "username"]) |> call()
+    assert(resp.body =~ "supabase")
   end
 
   test "delete query" do
@@ -64,27 +64,6 @@ defmodule PostgrestexTest do
 
     assert(resp.status_code == 204)
   end
-
-  test "Test Delete" do
-    req =
-      init("public")
-      |> from("users")
-      |> eq("username", "nevergonna")
-      |> delete(%{status: "ONLINE"})
-
-    assert(req.method == "DELETE")
-    assert(req.body == %{status: "ONLINE"})
-  end
-
-  test "selectors work" do
-    req =
-      init("public")
-      |> from("users")
-      |> eq("username", "nevergonna")
-      |> delete(%{status: "ONLINE"})
-  end
-
-  # Integration test for limit query and range query together with a not clause
 
   test "update headers inserts a header" do
     assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header == "header")
@@ -104,45 +83,43 @@ defmodule PostgrestexTest do
     assert(MapSet.subset?(subheaders, session_headers))
   end
 
-  describe "Test update variants" do
-    test "Test Upsert after regular insertion" do
+  test "Test Upsert after regular insertion" do
+    init("public")
+    |> from("users")
+    |> insert(
+      %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
+      false
+    )
+    |> call()
+
+    resp =
       init("public")
       |> from("users")
       |> insert(
-        %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
-        false
+        %{
+          username: "nevergonna",
+          age_range: "[1,2)",
+          status: "ONLINE",
+          catchphrase: "giveyouout"
+        },
+        true
       )
       |> call()
 
-      resp =
-        init("public")
-        |> from("users")
-        |> insert(
-          %{
-            username: "nevergonna",
-            age_range: "[1,2)",
-            status: "ONLINE",
-            catchphrase: "giveyouout"
-          },
-          true
-        )
-        |> call()
+    assert(resp.request.body =~ "giveyouout")
+    assert(resp.status_code == 201)
+  end
 
-      assert(resp.request.body =~ "giveyouout")
-      assert(resp.status_code == 201)
-    end
+  test "Test Update" do
+    req =
+      init("public")
+      |> from("users")
+      |> eq("username", "supabot")
+      |> update(%{status: "OFFLINE"})
 
-    test "Test Update" do
-      req =
-        init("public")
-        |> from("users")
-        |> eq("username", "supabot")
-        |> update(%{status: "OFFLINE"})
-
-      assert(req.params == [{"username", "eq.supabot"}])
-      assert(req.method == "PATCH")
-      assert(req.headers[:Prefer] == "return=representation")
-    end
+    assert(req.params == [{"username", "eq.supabot"}])
+    assert(req.method == "PATCH")
+    assert(req.headers[:Prefer] == "return=representation")
   end
 
   describe "Authentication tests" do
