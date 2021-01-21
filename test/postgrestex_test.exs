@@ -76,18 +76,22 @@ defmodule PostgrestexTest do
     assert(req.body == %{status: "ONLINE"})
   end
 
-  # Integration test for limit query and range query together with a not clause
   test "selectors work" do
-    # @TODO: Create test
-    # we expect
+    req =
+      init("public")
+      |> from("users")
+      |> eq("username", "nevergonna")
+      |> delete(%{status: "ONLINE"})
   end
+
+  # Integration test for limit query and range query together with a not clause
 
   test "update headers inserts a header" do
     assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header == "header")
   end
 
   describe "Test schema change" do
-    req = init("todo")
+    req = init("public")
     session = schema(req, "private")
     session_headers = MapSet.new(session.headers)
 
@@ -142,12 +146,14 @@ defmodule PostgrestexTest do
   end
 
   describe "Authentication tests" do
-    test "test auth token" do
-      # @TODO: Add test here
+    test "test auth with json web token" do
+      req = init("public") |> auth("t0ps3cr3t")
+      assert(req.headers[:Authorization] == "Bearer t0ps3cr3t")
     end
 
     test "test auth basic" do
-      # @TODO: Add test here
+      req = init("public") |> auth(nil, "admin", "t0ps3cr3t")
+      assert(req.options == [hackney: [basic_auth: {"admin", "t0ps3cr3t"}]])
     end
   end
 end

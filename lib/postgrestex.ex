@@ -36,7 +36,6 @@ defmodule Postgrestex do
   """
   @spec auth(map(), String.t(), String.t(), String.t()) :: map()
   def auth(req, token, username \\ "", password \\ "") do
-    # authenticate using the hackney client
     if username != "" do
       Map.merge(
         req,
