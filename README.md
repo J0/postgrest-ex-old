@@ -28,8 +28,8 @@ be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
 
 
 TODOS:
-- [ ] Document all functions
-- [ ] Convert to use async library
+- [ ] Test multivalue params as well as selectors 
+- [ ] Figure out how auth works within Postgrest
 
 
 ## Initialize and read from a table

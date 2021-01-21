@@ -23,7 +23,7 @@ defmodule PostgrestexTest do
       |> from("users")
       |> insert(
         %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
-        False
+        false
       )
       |> call()
 
@@ -39,6 +39,7 @@ defmodule PostgrestexTest do
   end
 
   test "multivalued params work" do
+    # @TODO
     # init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
   end
 
@@ -64,9 +65,21 @@ defmodule PostgrestexTest do
     assert(resp.status_code == 204)
   end
 
+  test "Test Delete" do
+    req =
+      init("public")
+      |> from("users")
+      |> eq("username", "nevergonna")
+      |> delete(%{status: "ONLINE"})
+
+    assert(req.method == "DELETE")
+    assert(req.body == %{status: "ONLINE"})
+  end
+
   # Integration test for limit query and range query together with a not clause
   test "selectors work" do
     # @TODO: Create test
+    # we expect
   end
 
   test "update headers inserts a header" do
@@ -87,9 +100,32 @@ defmodule PostgrestexTest do
     assert(MapSet.subset?(subheaders, session_headers))
   end
 
-  describe "Test insert variants" do
-    test "Test Upsert" do
-      # @TODO: Add test here
+  describe "Test update variants" do
+    test "Test Upsert after regular insertion" do
+      init("public")
+      |> from("users")
+      |> insert(
+        %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
+        false
+      )
+      |> call()
+
+      resp =
+        init("public")
+        |> from("users")
+        |> insert(
+          %{
+            username: "nevergonna",
+            age_range: "[1,2)",
+            status: "ONLINE",
+            catchphrase: "giveyouout"
+          },
+          true
+        )
+        |> call()
+
+      assert(resp.request.body =~ "giveyouout")
+      assert(resp.status_code == 201)
     end
 
     test "Test Update" do
@@ -102,17 +138,6 @@ defmodule PostgrestexTest do
       assert(req.params == %{"username" => "eq.supabot"})
       assert(req.method == "PATCH")
       assert(req.headers[:Prefer] == "return=representation")
-    end
-
-    test "Test Delete" do
-      req =
-        init("public")
-        |> from("users")
-        |> eq("username", "nevergonna")
-        |> delete(%{status: "ONLINE"})
-
-      assert(req.method == "DELETE")
-      assert(req.body == %{status: "ONLINE"})
     end
   end
 
