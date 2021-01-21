@@ -26,12 +26,6 @@ be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
 
 ## Getting Started
 
-
-TODOS:
-- [ ] Test multivalue params as well as selectors 
-- [ ] Figure out how auth works within Postgrest
-
-
 ## Initialize and read from a table
 
 First, `import Postgrestex`
@@ -40,17 +34,30 @@ Then do any one of the following options:
 
 ### Create
 ```
-init("api") |> from("todos") |> insert(%{"name": "Singapore", "capital": "Singapore" }, False) |> call()
+init("public")
+      |> from("users")
+      |> insert(
+        %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
+        false
+      )
+      |> call()
 ```
 
 ### Read
 ```
-init("api") |> from("todos") |> select(["id", "name"]) |> call()
+init("public") 
+    |> from("messages") 
+    |> select(["id", "username"]) 
+    |> call()
 ```
 
 ### Update
 ```
-init("public") |> from("users") |> eq("username", "supabot") |> update(%{"status": "OFFLINE"}) |> call()
+init("public")
+    |> from("messages")
+    |> eq("username", "supabot")
+    |> update(%{id: "6"})
+    |> call()
 ```
 
 ### Delete
