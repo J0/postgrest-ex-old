@@ -88,7 +88,7 @@ defmodule Postgrestex do
     Task.async(fn ->
       case req.method do
         "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
-        "GET" -> HTTPoison.get!(url, headers, options: options)
+        "GET" -> HTTPoison.get!(url, headers, params: params, options: options)
         "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
         "DELETE" -> HTTPoison.delete!(url, [], params: params, options: options)
       end
@@ -114,7 +114,7 @@ defmodule Postgrestex do
           HTTPoison.post!(url, body, headers, params: params, options: options)
 
         "GET" ->
-          HTTPoison.get!(url, headers, options: options)
+          HTTPoison.get!(url, headers, params: params, options: options)
 
         "PATCH" ->
           HTTPoison.patch!(url, body, headers, params: params, options: options)
@@ -203,7 +203,7 @@ defmodule Postgrestex do
   end
 
   @doc """
-  Either filter in or filter out based on Self.negate_next.
+  Either filter in or filter out based on negate_next.
   """
   @doc since: "0.1.0"
   @spec filter(map(), String.t(), String.t(), String.t()) :: map()
@@ -218,16 +218,13 @@ defmodule Postgrestex do
     val = "#{operator}.#{criteria}"
     key = sanitize_params(column)
 
-    req =
-      if Map.has_key?(req.params, key) do
-        # TODO: Handle variables with multiple assignments
-        # params = Map.get(req.params, key)
-        Kernel.put_in(req[:params][key], val)
-      else
-        Kernel.put_in(req, [:params, key], val)
-      end
-
-    Map.merge(req, %{method: "POST"})
+    if Map.has_key?(req.params, key) do
+      # TODO: Convert req.params to use a keyword list so that we can handle multiple params
+      # params = Map.get(req.params, key)
+      Kernel.put_in(req[:params][key], val)
+    else
+      Kernel.put_in(req, [:params, key], val)
+    end
   end
 
   @doc """

@@ -39,8 +39,7 @@ defmodule PostgrestexTest do
   end
 
   test "multivalued params work" do
-    # @TODO
-    # init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
+    init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
   end
 
   test "update query" do
