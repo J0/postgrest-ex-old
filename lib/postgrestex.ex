@@ -27,7 +27,7 @@ defmodule Postgrestex do
       method: "GET",
       negate_next: false,
       body: %{},
-      params: %{}
+      params: []
     }
   end
 
@@ -82,7 +82,7 @@ defmodule Postgrestex do
     url = req.path
     headers = req.headers
     body = Jason.encode!(Map.get(req, :body, %{}))
-    params = Map.get(req, :params, %{})
+    params = Map.get(req, :params, [])
     options = Map.get(req, :options, [])
 
     Task.async(fn ->
@@ -105,7 +105,7 @@ defmodule Postgrestex do
     url = req.path
     headers = req.headers
     body = Jason.encode!(Map.get(req, :body, %{}))
-    params = Map.get(req, :params, %{})
+    params = Map.get(req, :params, [])
     options = Map.get(req, :options, [])
 
     Task.async(fn ->
@@ -217,14 +217,7 @@ defmodule Postgrestex do
 
     val = "#{operator}.#{criteria}"
     key = sanitize_params(column)
-
-    if Map.has_key?(req.params, key) do
-      # TODO: Convert req.params to use a keyword list so that we can handle multiple params
-      # params = Map.get(req.params, key)
-      Kernel.put_in(req[:params][key], val)
-    else
-      Kernel.put_in(req, [:params, key], val)
-    end
+    Kernel.put_in(req[:params], [{key, val} | req[:params]])
   end
 
   @doc """

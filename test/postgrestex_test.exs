@@ -39,7 +39,8 @@ defmodule PostgrestexTest do
   end
 
   test "multivalued params work" do
-    init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
+    resp = init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
+    assert(resp.status_code == 200 && resp.request.params == [{"id", "gte.1"}, {"id", "lte.1"}])
   end
 
   test "update query" do
@@ -134,7 +135,7 @@ defmodule PostgrestexTest do
         |> eq("username", "supabot")
         |> update(%{status: "OFFLINE"})
 
-      assert(req.params == %{"username" => "eq.supabot"})
+      assert(req.params == [{"username", "eq.supabot"}])
       assert(req.method == "PATCH")
       assert(req.headers[:Prefer] == "return=representation")
     end
