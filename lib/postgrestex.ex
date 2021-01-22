@@ -76,7 +76,9 @@ defmodule Postgrestex do
   Take in and execute a request. Doesn't return an exception if an error is thrown.
   """
   @doc since: "0.1.0"
-  @spec call(map()) :: HTTPoison.Response.t() | :error
+  @spec call(map()) ::
+          {:ok, HTTPoison.Response.t() | HTTPoison.AsyncResponse.t()}
+          | {:error, HTTPoison.Error.t()}
   def call(req) do
     url = req.path
     headers = req.headers
@@ -86,10 +88,10 @@ defmodule Postgrestex do
 
     Task.async(fn ->
       case req.method do
-        "POST" -> HTTPoison.post!(url, body, headers, params: params, options: options)
-        "GET" -> HTTPoison.get!(url, headers, params: params, options: options)
-        "PATCH" -> HTTPoison.patch!(url, body, headers, params: params, options: options)
-        "DELETE" -> HTTPoison.delete!(url, [], params: params, options: options)
+        "POST" -> HTTPoison.post(url, body, headers, params: params, options: options)
+        "GET" -> HTTPoison.get(url, headers, params: params, options: options)
+        "PATCH" -> HTTPoison.patch(url, body, headers, params: params, options: options)
+        "DELETE" -> HTTPoison.delete(url, [], params: params, options: options)
       end
     end)
     |> Task.await()
@@ -99,7 +101,8 @@ defmodule Postgrestex do
   Take in and execute a request. Raises an exception if an error occurs.
   """
   @doc since: "0.1.0"
-  @spec call!(map()) :: HTTPoison.Response.t() | NoMethodException
+  @spec call!(map()) ::
+          {:ok, HTTPoison.Response.t() | HTTPoison.AsyncResponse.t()} | NoMethodException
   def call!(req) do
     url = req.path
     headers = req.headers

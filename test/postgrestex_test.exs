@@ -18,7 +18,7 @@ defmodule PostgrestexTest do
   end
 
   test "create query" do
-    resp =
+    {:ok, resp} =
       init("public")
       |> from("users")
       |> insert(
@@ -27,19 +27,16 @@ defmodule PostgrestexTest do
       )
       |> call()
 
-    assert(
-      resp.request.body ==
-        "{\"age_range\":\"[1,2)\",\"catchphrase\":\"giveyouup\",\"status\":\"ONLINE\",\"username\":\"nevergonna\"}"
-    )
+    assert(resp.request.body =~ "nevergonna")
   end
 
   test "read query" do
-    resp = init("public") |> from("messages") |> select(["id", "username"]) |> call()
+    {:ok, resp} = init("public") |> from("messages") |> select(["id", "username"]) |> call()
     assert(resp.status_code == 200)
   end
 
   test "multivalued params work" do
-    resp = init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
+    {:ok, resp} = init("public") |> from("messages") |> lte("id", "1") |> gte("id", "1") |> call()
     assert(resp.status_code == 200 && resp.request.params == [{"id", "gte.1"}, {"id", "lte.1"}])
   end
 
@@ -50,12 +47,12 @@ defmodule PostgrestexTest do
     |> update(%{username: "supabase"})
     |> call()
 
-    resp = init("public") |> from("users") |> select(["status", "username"]) |> call()
+    {:ok, resp} = init("public") |> from("users") |> select(["status", "username"]) |> call()
     assert(resp.body =~ "supabase")
   end
 
   test "delete query" do
-    resp =
+    {:ok, resp} =
       init("public")
       |> from("users")
       |> eq("username", "awailas")
@@ -92,7 +89,7 @@ defmodule PostgrestexTest do
     )
     |> call()
 
-    resp =
+    {:ok, resp} =
       init("public")
       |> from("users")
       |> insert(
