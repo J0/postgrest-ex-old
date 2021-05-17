@@ -1,8 +1,6 @@
-
 # Postgrestex
 
 **Status: POC**
-
 
 Elixir Postgrestex library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
 
@@ -19,7 +17,6 @@ def deps do
 end
 ```
 
-
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/postgrestex](https://hexdocs.pm/postgrestex).
@@ -33,6 +30,7 @@ First, `import Postgrestex`
 Then do any one of the following options:
 
 ### Create
+
 Example usage:
 
 ```
@@ -42,10 +40,11 @@ init("public") \
         %{username: "nevergonna", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
         false
       ) \
-      |> call() 
+      |> call()
 ```
 
 ### Read
+
 Example usage:
 
 ```
@@ -56,6 +55,7 @@ init("public") \
 ```
 
 ### Update
+
 Example usage:
 
 ```
@@ -67,18 +67,18 @@ Example usage:
 ```
 
 ### Delete
+
 Example usage:
 
 ```
 init("public") \
   |> from("users") \
   |> eq("username", "nevergonna") \
-  |> delete(%{status: "ONLINE"}) \
+  |> eq("status", "ONLINE") \
+  |> delete() \
   |> call()
 ```
 
 ## Testing
 
 Run `mix test`
-
-

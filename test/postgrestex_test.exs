@@ -56,7 +56,8 @@ defmodule PostgrestexTest do
       init("public")
       |> from("users")
       |> eq("username", "awailas")
-      |> delete(%{status: "ONLINE"})
+      |> eq("status", "ONLINE")
+      |> delete()
       |> call()
 
     assert(resp.status_code == 204)

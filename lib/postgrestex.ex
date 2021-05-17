@@ -91,7 +91,7 @@ defmodule Postgrestex do
         "POST" -> HTTPoison.post(url, body, headers, params: params, options: options)
         "GET" -> HTTPoison.get(url, headers, params: params, options: options)
         "PATCH" -> HTTPoison.patch(url, body, headers, params: params, options: options)
-        "DELETE" -> HTTPoison.delete(url, [], params: params, options: options)
+        "DELETE" -> HTTPoison.delete(url, headers, params: params, options: options)
       end
     end)
     |> Task.await()
@@ -122,7 +122,7 @@ defmodule Postgrestex do
           HTTPoison.patch!(url, body, headers, params: params, options: options)
 
         "DELETE" ->
-          HTTPoison.delete!(url, [], params: params, options: options)
+          HTTPoison.delete!(url, headers, params: params, options: options)
 
         _ ->
           raise NoMethodException
@@ -161,9 +161,9 @@ defmodule Postgrestex do
   Delete an existing value in the currently selected table.
   """
   @doc since: "0.1.0"
-  @spec delete(map(), map()) :: map()
-  def delete(req, json) do
-    req |> Map.merge(%{method: "DELETE", body: json})
+  @spec delete(map()) :: map()
+  def delete(req) do
+    req |> Map.merge(%{method: "DELETE"})
   end
 
   @spec order(map(), String.t(), true | false, true | false) :: map()
