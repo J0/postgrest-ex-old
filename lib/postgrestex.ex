@@ -161,9 +161,10 @@ defmodule Postgrestex do
   Delete an existing value in the currently selected table.
   """
   @doc since: "0.1.0"
-  @spec delete(map()) :: map()
-  def delete(req) do
-    req |> Map.merge(%{method: "DELETE"})
+  @spec delete(map(), keyword()) :: map()
+  def delete(req, options \\ []) do
+    apply_returning(req, options)
+    |> Map.merge(%{method: "DELETE"})
   end
 
   @spec order(map(), String.t(), true | false, true | false) :: map()
@@ -344,5 +345,13 @@ defmodule Postgrestex do
   @spec update_headers(map(), map()) :: map()
   def update_headers(req, updates) do
     Kernel.update_in(req.headers, &Map.merge(&1, updates))
+  end
+
+  defp apply_returning(req, options) do
+    if Keyword.get(options, :returning) do
+      update_headers(req, %{Prefer: "return=representation"})
+    else
+      req
+    end
   end
 end

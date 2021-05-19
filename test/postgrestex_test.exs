@@ -67,6 +67,21 @@ defmodule PostgrestexTest do
     assert(resp.status_code == 204)
   end
 
+  test "delete returns row" do
+    {:ok, %HTTPoison.Response{status_code: status_code, body: body}} =
+      init("public")
+      |> from("users")
+      |> eq("username", "nevergonna")
+      |> delete(returning: true)
+      |> call()
+
+    assert(status_code == 200)
+    body = Jason.decode!(body, keys: :atoms)
+    assert(length(body) == 1)
+    [user] = body
+    assert(user.username == "nevergonna")
+  end
+
   test "update headers inserts a header" do
     assert(update_headers(init("api"), %{new_header: "header"}).headers.new_header == "header")
   end
