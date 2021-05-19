@@ -133,7 +133,7 @@ defmodule Postgrestex do
 
   @spec select(map(), list()) :: map()
   def select(req, columns) do
-    update_headers(req, %{select: Enum.join(columns, ","), method: "GET"})
+    %{req | params: [{:select, Enum.join(columns, ",")} | req.params], method: "GET"}
   end
 
   @doc """

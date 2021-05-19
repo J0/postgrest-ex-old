@@ -31,8 +31,12 @@ defmodule PostgrestexTest do
   end
 
   test "read query" do
-    {:ok, resp} = init("public") |> from("messages") |> select(["id", "username"]) |> call()
-    assert(resp.status_code == 200)
+    {:ok, %HTTPoison.Response{status_code: status_code, body: body}} =
+      init("public") |> from("messages") |> select(["id", "username"]) |> call()
+
+    [row | _rest] = Jason.decode!(body, keys: :atoms)
+    assert(status_code == 200)
+    assert(Map.keys(row) |> Enum.sort() == [:id, :username])
   end
 
   test "multivalued params work" do
