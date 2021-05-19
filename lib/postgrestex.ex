@@ -140,7 +140,7 @@ defmodule Postgrestex do
   Insert a row into currently selected table. Does an insert and update if upsert is set to True
   """
   @doc since: "0.1.0"
-  @spec insert(map(), list(), true | false) :: map()
+  @spec insert(map(), map(), true | false) :: map()
   def insert(req, json, upsert \\ false) do
     prefer_option = if upsert, do: ",resolution=merge-duplicates", else: ""
     headers = update_headers(req, %{Prefer: prefer_option})
