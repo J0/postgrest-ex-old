@@ -30,6 +30,25 @@ defmodule PostgrestexTest do
     assert(resp.request.body =~ "nevergonna")
   end
 
+  test "create query returning" do
+    {:ok, resp} =
+      init("public")
+      |> from("users")
+      |> insert(
+        %{username: "new user", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
+        false,
+        returning: true
+      )
+      |> call()
+
+    assert(resp.body =~ "new user")
+    assert(resp.status_code == 201)
+
+    on_exit(fn ->
+      init("public") |> from("users") |> delete() |> eq("username", "new user") |> call()
+    end)
+  end
+
   test "read query" do
     {:ok, %HTTPoison.Response{status_code: status_code, body: body}} =
       init("public") |> from("messages") |> select(["id", "username"]) |> call()
