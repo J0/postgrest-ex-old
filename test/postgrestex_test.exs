@@ -30,9 +30,32 @@ defmodule PostgrestexTest do
     assert(resp.request.body =~ "nevergonna")
   end
 
+  test "create query returning" do
+    {:ok, resp} =
+      init("public")
+      |> from("users")
+      |> insert(
+        %{username: "new user", age_range: "[1,2)", status: "ONLINE", catchphrase: "giveyouup"},
+        false,
+        returning: true
+      )
+      |> call()
+
+    assert(resp.body =~ "new user")
+    assert(resp.status_code == 201)
+
+    on_exit(fn ->
+      init("public") |> from("users") |> delete() |> eq("username", "new user") |> call()
+    end)
+  end
+
   test "read query" do
-    {:ok, resp} = init("public") |> from("messages") |> select(["id", "username"]) |> call()
-    assert(resp.status_code == 200)
+    {:ok, %HTTPoison.Response{status_code: status_code, body: body}} =
+      init("public") |> from("messages") |> select(["id", "username"]) |> call()
+
+    [row | _rest] = Jason.decode!(body, keys: :atoms)
+    assert(status_code == 200)
+    assert(Map.keys(row) |> Enum.sort() == [:id, :username])
   end
 
   test "multivalued params work" do
@@ -61,6 +84,21 @@ defmodule PostgrestexTest do
       |> call()
 
     assert(resp.status_code == 204)
+  end
+
+  test "delete returns row" do
+    {:ok, %HTTPoison.Response{status_code: status_code, body: body}} =
+      init("public")
+      |> from("users")
+      |> eq("username", "nevergonna")
+      |> delete(returning: true)
+      |> call()
+
+    assert(status_code == 200)
+    body = Jason.decode!(body, keys: :atoms)
+    assert(length(body) == 1)
+    [user] = body
+    assert(user.username == "nevergonna")
   end
 
   test "update headers inserts a header" do

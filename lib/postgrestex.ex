@@ -133,16 +133,28 @@ defmodule Postgrestex do
 
   @spec select(map(), list()) :: map()
   def select(req, columns) do
-    update_headers(req, %{select: Enum.join(columns, ","), method: "GET"})
+    %{req | params: [{:select, Enum.join(columns, ",")} | req.params], method: "GET"}
   end
 
   @doc """
   Insert a row into currently selected table. Does an insert and update if upsert is set to True
   """
   @doc since: "0.1.0"
-  @spec insert(map(), list(), true | false) :: map()
-  def insert(req, json, upsert \\ false) do
+  def insert(req, json, options) when is_list(options),
+    do: insert(req, json, false, options)
+
+  def insert(req, json, upsert) when is_boolean(upsert),
+    do: insert(req, json, upsert, [])
+
+  @spec insert(map(), map(), true | false, keyword()) :: map()
+  def insert(req, json, upsert \\ false, options \\ []) do
     prefer_option = if upsert, do: ",resolution=merge-duplicates", else: ""
+
+    prefer_option =
+      if Keyword.get(options, :returning, false),
+        do: "return=representation#{prefer_option}",
+        else: prefer_option
+
     headers = update_headers(req, %{Prefer: prefer_option})
     req |> Map.merge(headers) |> Map.merge(%{body: json, method: "POST"})
   end
@@ -161,9 +173,10 @@ defmodule Postgrestex do
   Delete an existing value in the currently selected table.
   """
   @doc since: "0.1.0"
-  @spec delete(map()) :: map()
-  def delete(req) do
-    req |> Map.merge(%{method: "DELETE"})
+  @spec delete(map(), keyword()) :: map()
+  def delete(req, options \\ []) do
+    apply_returning(req, options)
+    |> Map.merge(%{method: "DELETE"})
   end
 
   @spec order(map(), String.t(), true | false, true | false) :: map()
@@ -344,5 +357,13 @@ defmodule Postgrestex do
   @spec update_headers(map(), map()) :: map()
   def update_headers(req, updates) do
     Kernel.update_in(req.headers, &Map.merge(&1, updates))
+  end
+
+  defp apply_returning(req, options) do
+    if Keyword.get(options, :returning) do
+      update_headers(req, %{Prefer: "return=representation"})
+    else
+      req
+    end
   end
 end
