@@ -1,5 +1,9 @@
 # Postgrestex
 
+## Maintenance mode
+
+Postgrest-ex package is in maintenance mode and we won’t be actively improving it. Please use the new [Postgrest-ex](https://github.com/supabase-community/postgrest-ex) library that we have released.
+
 **Status: POC**
 
 Elixir Postgrestex library for Postgrest. The design mirrors that of [postgrest-py](https://github.com/supabase/postgrest-py)
